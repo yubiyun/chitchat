@@ -1,25 +1,21 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongoService } from './common/mongo/mongo.service';
-import { RedisService } from './common/redis/redis.service';
-import { MqService } from './common/mq/mq.service';
-import { ProducerService } from './chat/producer/producer.service';
-import { ConsumerService } from './chat/consumer/consumer.service';
-import { QbotController } from './chat/qbot/qbot.controller';
-import { QbotService } from './chat/qbot/qbot.service';
+import { BullModule } from '@nestjs/bull';
+import { redis } from './common/configs';
+import { ChatModule } from './chat/chat.module';
+import { QbotModule } from './qbot/qbot.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController, QbotController],
-  providers: [
-    AppService,
-    MongoService,
-    RedisService,
-    MqService,
-    ProducerService,
-    ConsumerService,
-    QbotService,
+  imports: [
+    BullModule.forRoot({
+      url: redis.url,
+      prefix: 'chitchat',
+    }),
+    ChatModule,
+    QbotModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
