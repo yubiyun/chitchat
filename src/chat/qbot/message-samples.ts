@@ -31,7 +31,7 @@ const groupMessage = {
 /**
  * 心跳包
  */
-const heartBeat = {
+const heartbeat = {
   post_type: 'meta_event',
   meta_event_type: 'heartbeat',
   time: 1676123777,
