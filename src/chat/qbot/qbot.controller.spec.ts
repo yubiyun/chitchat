@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CqhttpController } from './cqhttp.controller';
+import { QbotController } from './qbot.controller';
 
-describe('CqhttpController', () => {
-  let controller: CqhttpController;
+describe('QbotController', () => {
+  let controller: QbotController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [CqhttpController],
+      controllers: [QbotController],
     }).compile();
 
-    controller = module.get<CqhttpController>(CqhttpController);
+    controller = module.get<QbotController>(QbotController);
   });
 
   it('should be defined', () => {

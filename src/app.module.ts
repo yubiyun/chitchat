@@ -6,11 +6,20 @@ import { RedisService } from './common/redis/redis.service';
 import { MqService } from './common/mq/mq.service';
 import { ProducerService } from './chat/producer/producer.service';
 import { ConsumerService } from './chat/consumer/consumer.service';
-import { CqhttpController } from './chat/cqhttp/cqhttp.controller';
+import { QbotController } from './chat/qbot/qbot.controller';
+import { QbotService } from './chat/qbot/qbot.service';
 
 @Module({
   imports: [],
-  controllers: [AppController, CqhttpController],
-  providers: [AppService, MongoService, RedisService, MqService, ProducerService, ConsumerService],
+  controllers: [AppController, QbotController],
+  providers: [
+    AppService,
+    MongoService,
+    RedisService,
+    MqService,
+    ProducerService,
+    ConsumerService,
+    QbotService,
+  ],
 })
-export class AppModule { }
+export class AppModule {}
