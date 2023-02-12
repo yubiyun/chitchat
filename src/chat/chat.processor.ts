@@ -14,7 +14,10 @@ export class ChatProcessor {
   async handlePrivateChat(job: Job<PrivateMessage>) {
     this.logger.debug('handlePrivateChat');
     this.logger.debug(job.data);
-    await this.oaService.example();
+    // TODO: filter message text data from array
+    const res = await this.oaService.withoutContext(job.data.raw_message)
+    this.logger.debug(res)
+    // TODO: handle reply message
   }
 
   @Process('group')

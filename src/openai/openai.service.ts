@@ -8,7 +8,20 @@ export class OpenaiService {
 
   // private readonly api = new ChatGPTAPI({ apiKey: this.key });
 
-  async withoutContext() {}
+  async withoutContext(prompt: string) {
+    try {
+      const { ChatGPTAPI } = await import('chatgpt');
+      const { oraPromise } = await import('ora');
+
+      const api = new ChatGPTAPI({ apiKey: this.key });
+
+      const res = await oraPromise(api.sendMessage(prompt), { text: prompt });
+      return res.text;
+    } catch (error) {
+      this.logger.error(error.message, error);
+      return 'error';
+    }
+  }
 
   async example() {
     this.logger.debug('example');
