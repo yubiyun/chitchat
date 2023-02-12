@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ChatService } from 'src/chat/chat.service';
-import { GroupMessage, PrivateMessage } from './types/aio';
+import { sendPrivateMessage } from './api';
+import { GroupMessage, MessageItem, PrivateMessage } from './types/aio';
 
 @Injectable()
 export class QbotService {
@@ -17,4 +18,11 @@ export class QbotService {
   }
 
   async sendMessage() {}
+
+  async replyPrivateMessage(req: PrivateMessage, res: string) {
+    const { user_id } = req;
+    const message: MessageItem[] = [{ type: 'text', data: { text: res } }];
+    this.logger.debug({ user_id, message });
+    await sendPrivateMessage({ user_id, message });
+  }
 }

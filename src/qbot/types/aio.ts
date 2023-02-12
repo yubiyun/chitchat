@@ -60,7 +60,7 @@ export interface PostMessage extends PostEvent {
 
 export type MessageType = 'private' | 'group';
 
-interface MessageItem {}
+export interface MessageItem {}
 
 interface PostMessageSender {
   user_id: number;
