@@ -1,9 +1,7 @@
 import { Controller, Logger, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { QbotService } from './qbot.service';
-import { GroupMessage } from './types/group-message';
-import { HeartbeatMessage } from './types/heartbeat-message';
-import { PrivateMessage } from './types/private-message';
+import { GroupMessage, HeartbeatEvent, PrivateMessage } from './types/aio';
 
 @Controller('qbot')
 export class QbotController {
@@ -13,7 +11,7 @@ export class QbotController {
 
   @Post('/push')
   async pushMessage(@Req() req: Request) {
-    const payload: GroupMessage | HeartbeatMessage | PrivateMessage = req.body;
+    const payload: GroupMessage | PrivateMessage | HeartbeatEvent = req.body;
     const postType = payload.post_type;
     switch (postType) {
       case 'message':
@@ -43,5 +41,5 @@ export class QbotController {
     }
   }
 
-  async handleMetaEvent(payload: HeartbeatMessage) {}
+  async handleMetaEvent(payload: HeartbeatEvent) {}
 }

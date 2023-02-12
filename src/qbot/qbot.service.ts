@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ChatService } from 'src/chat/chat.service';
-import { GroupMessage } from './types/group-message';
-import { PrivateMessage } from './types/private-message';
+import { GroupMessage, PrivateMessage } from './types/aio';
 
 @Injectable()
 export class QbotService {
