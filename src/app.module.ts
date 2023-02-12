@@ -5,6 +5,7 @@ import { BullModule } from '@nestjs/bull';
 import { redis } from './common/configs';
 import { ChatModule } from './chat/chat.module';
 import { QbotModule } from './qbot/qbot.module';
+import { OpenaiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { QbotModule } from './qbot/qbot.module';
     }),
     ChatModule,
     QbotModule,
+    OpenaiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
