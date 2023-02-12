@@ -49,7 +49,7 @@ interface Stat {
  */
 export interface PostMessage extends PostEvent {
   post_type: 'message' | 'message_sent';
-  message_type: 'private' | 'group';
+  message_type: MessageType;
   sub_type: string;
   message_id: number;
   user_id: number;
@@ -57,6 +57,8 @@ export interface PostMessage extends PostEvent {
   raw_message: string;
   sender: PostMessageSender;
 }
+
+export type MessageType = 'private' | 'group';
 
 interface MessageItem {}
 

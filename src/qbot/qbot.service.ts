@@ -9,24 +9,11 @@ export class QbotService {
   constructor(private readonly chatService: ChatService) {}
 
   async handlePrivateMessage(payload: PrivateMessage) {
-    const data = {
-      from: payload.user_id,
-      to: payload.self_id,
-      msg: payload.raw_message,
-      nickname: payload.sender.nickname,
-    };
-    this.logger.log(data);
-    await this.chatService.appendChat(data);
+    await this.chatService.appendChat('private', payload);
   }
 
   async handleGroupMessage(payload: GroupMessage) {
-    this.logger.log({
-      group: payload.group_id,
-      from: payload.user_id,
-      to: payload.self_id,
-      msg: payload.raw_message,
-      nickname: payload.sender.nickname,
-    });
+    await this.chatService.appendChat('group', payload);
   }
 
   async sendMessage() {}
