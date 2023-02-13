@@ -11,7 +11,7 @@ import { ChatService } from './chat.service';
       name: 'chat',
     }),
     OpenaiModule,
-    QbotModule
+    QbotModule,
   ],
   exports: [ChatService],
   providers: [ChatService, ChatProcessor],
