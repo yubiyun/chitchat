@@ -7,3 +7,7 @@ export const redis = {
 export const openai = {
   key: config.get<string>('openai.key'),
 };
+
+export const cqhttp = {
+  host: config.get<string>('cqhttp.host'),
+};
