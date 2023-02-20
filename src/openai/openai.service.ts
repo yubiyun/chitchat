@@ -7,14 +7,34 @@ export class OpenaiService {
   private readonly logger = new Logger(OpenaiService.name);
   private readonly key = openai.key;
 
-  // private readonly api = new ChatGPTAPI({ apiKey: this.key });
+  private api: any;
+
+  constructor() {
+    this.init()
+      .catch((error) => {
+        this.logger.error(error);
+      })
+      .finally(() => {
+        this.logger.debug('init success');
+      });
+    // this.example()
+    //   .catch((error) => this.logger.error(error))
+    //   .finally(() => this.logger.debug('call example finished'));
+  }
+
+  async init() {
+    const { ChatGPTAPI } = await import('chatgpt');
+    this.api = new ChatGPTAPI({ apiKey: this.key }) as InstanceType<
+      typeof ChatGPTAPI
+    >;
+    // await this.example();
+  }
 
   async withoutContext(prompt: string) {
     try {
       const { ChatGPTAPI } = await import('chatgpt');
       const { oraPromise } = await import('ora');
-
-      const api = new ChatGPTAPI({ apiKey: this.key });
+      const api = this.api as InstanceType<typeof ChatGPTAPI>;
 
       const res = await oraPromise(api.sendMessage(prompt), { text: prompt });
       return res.text;
@@ -33,7 +53,7 @@ export class OpenaiService {
     const { ChatGPTAPI } = await import('chatgpt');
     const { oraPromise } = await import('ora');
 
-    const api = new ChatGPTAPI({ apiKey: this.key });
+    const api = this.api as InstanceType<typeof ChatGPTAPI>;
 
     const ctxListKey = `ctx:${extra.qq}`;
     let res: any;
@@ -49,16 +69,23 @@ export class OpenaiService {
         conversationId: string;
         parentMessageId: string;
       };
+      this.logger.debug(`conversationId=${conversationId}`);
+      this.logger.debug(`parentMessageId=${parentMessageId}`);
       /**
        * request answer
        */
       res = await oraPromise(
-        api.sendMessage(prompt, { conversationId, parentMessageId }),
+        api.sendMessage(prompt, {
+          conversationId,
+          parentMessageId,
+        }),
         { text: prompt },
       );
     } else {
       await redisClient.sadd('users', extra.qq);
-      res = await oraPromise(api.sendMessage(prompt), { text: prompt });
+      res = await oraPromise(api.sendMessage(prompt), {
+        text: prompt,
+      });
     }
     /**
      * append latest ctx
@@ -78,10 +105,8 @@ export class OpenaiService {
     const { ChatGPTAPI } = await import('chatgpt');
     const { oraPromise } = await import('ora');
 
-    const api = new ChatGPTAPI({ apiKey: this.key });
+    const api = this.api as InstanceType<typeof ChatGPTAPI>;
     const prompt = 'Write a poem about cats.';
-
-    this.logger.debug(api);
 
     let res = await oraPromise(api.sendMessage(prompt), {
       text: prompt,
