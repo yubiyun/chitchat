@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { openai } from 'src/common/configs';
-import { redisClient } from 'src/common/redis';
+import { ChatCtx, getCtx, setCtx } from './helper';
 
 @Injectable()
 export class OpenaiService {
@@ -30,7 +30,8 @@ export class OpenaiService {
     // await this.example();
   }
 
-  async withoutContext(prompt: string) {
+  async withoutContext(params: { prompt: string }) {
+    const { prompt } = params;
     try {
       const { ChatGPTAPI } = await import('chatgpt');
       const { oraPromise } = await import('ora');
@@ -44,60 +45,37 @@ export class OpenaiService {
     }
   }
 
-  async withContext(
-    prompt: string,
-    extra: {
-      qq: number;
-    },
-  ) {
+  async withContext(params: { prompt: string; uid: string }) {
     const { ChatGPTAPI } = await import('chatgpt');
     const { oraPromise } = await import('ora');
 
+    const { prompt, uid } = params;
+
     const api = this.api as InstanceType<typeof ChatGPTAPI>;
 
-    const ctxListKey = `ctx:${extra.qq}`;
-    let res: any;
-    /**
-     * check is member
-     */
-    if (await redisClient.sismember('users', extra.qq)) {
-      /**
-       * get latest ctx
-       */
-      const [latest] = await redisClient.lrange(ctxListKey, -1, -1);
-      const { conversationId, parentMessageId } = JSON.parse(latest) as {
-        conversationId: string;
-        parentMessageId: string;
-      };
-      this.logger.debug(`conversationId=${conversationId}`);
-      this.logger.debug(`parentMessageId=${parentMessageId}`);
-      /**
-       * request answer
-       */
-      res = await oraPromise(
+    const strCtx = (await getCtx(uid)) || '{}';
+    this.logger.debug(`ctx=${strCtx}`);
+    try {
+      const ctx = JSON.parse(strCtx) as ChatCtx;
+      const res = await oraPromise(
         api.sendMessage(prompt, {
-          conversationId,
-          parentMessageId,
+          ...ctx,
         }),
-        { text: prompt },
+        {
+          text: prompt,
+        },
       );
-    } else {
-      await redisClient.sadd('users', extra.qq);
-      res = await oraPromise(api.sendMessage(prompt), {
-        text: prompt,
-      });
-    }
-    /**
-     * append latest ctx
-     */
-    await redisClient.rpush(
-      ctxListKey,
-      JSON.stringify({
+      const newCtx = {
         conversationId: res.conversationId,
         parentMessageId: res.id,
-      }),
-    );
-    return res.text;
+      };
+      await setCtx(uid, newCtx);
+      // this.logger.debug(res)
+      return res.text;
+    } catch (error) {
+      this.logger.error(error);
+      return error.message;
+    }
   }
 
   async example() {

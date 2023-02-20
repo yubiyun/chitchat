@@ -30,10 +30,9 @@ export class ChatProcessor {
     /**
      * 保留上下文
      */
-    const res = await this.oaService.withContext(text, {
-      qq: job.data.user_id,
-    });
-    this.logger.debug(res);
+    const uid = job.data.user_id.toString();
+    const res = await this.oaService.withContext({ prompt: text, uid });
+    // this.logger.debug(res);
     await this.qbotService.replyPrivateMessage(job.data, res);
     // TODO: handle reply message
   }
