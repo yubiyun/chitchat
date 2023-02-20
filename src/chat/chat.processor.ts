@@ -28,9 +28,11 @@ export class ChatProcessor {
     }
     const text = textArr.map((item) => item.data.text.trim()).join(' ');
     /**
-     * TODO: 保留上下文
+     * 保留上下文
      */
-    const res = await this.oaService.withoutContext(text);
+    const res = await this.oaService.withContext(text, {
+      qq: job.data.user_id,
+    });
     this.logger.debug(res);
     await this.qbotService.replyPrivateMessage(job.data, res);
     // TODO: handle reply message

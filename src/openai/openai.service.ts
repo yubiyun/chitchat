@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { openai } from 'src/common/configs';
+import { redisClient } from 'src/common/redis';
 
 @Injectable()
 export class OpenaiService {
@@ -21,6 +22,55 @@ export class OpenaiService {
       this.logger.error(error.message, error);
       return 'error';
     }
+  }
+
+  async withContext(
+    prompt: string,
+    extra: {
+      qq: number;
+    },
+  ) {
+    const { ChatGPTAPI } = await import('chatgpt');
+    const { oraPromise } = await import('ora');
+
+    const api = new ChatGPTAPI({ apiKey: this.key });
+
+    const ctxListKey = `ctx:${extra.qq}`;
+    let res: any;
+    /**
+     * check is member
+     */
+    if (await redisClient.sismember('users', extra.qq)) {
+      /**
+       * get latest ctx
+       */
+      const [latest] = await redisClient.lrange(ctxListKey, -1, -1);
+      const { conversationId, parentMessageId } = JSON.parse(latest) as {
+        conversationId: string;
+        parentMessageId: string;
+      };
+      /**
+       * request answer
+       */
+      res = await oraPromise(
+        api.sendMessage(prompt, { conversationId, parentMessageId }),
+        { text: prompt },
+      );
+    } else {
+      await redisClient.sadd('users', extra.qq);
+      res = await oraPromise(api.sendMessage(prompt), { text: prompt });
+    }
+    /**
+     * append latest ctx
+     */
+    await redisClient.rpush(
+      ctxListKey,
+      JSON.stringify({
+        conversationId: res.conversationId,
+        parentMessageId: res.id,
+      }),
+    );
+    return res.text;
   }
 
   async example() {
